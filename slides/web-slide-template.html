@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>网页版 Slide 模板｜仿手写静态演示页</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #fbfaf6;
+      --paper-deep: #f4efe6;
+      --ink: #22211d;
+      --muted: #716d63;
+      --line: #e3dacb;
+      --line-strong: #cfc3b0;
+      --nav: #f3eee5;
+      --nav-ink: #26231f;
+      --nav-muted: #706b60;
+      --green: #3e7e74;
+      --blue: #4a6f91;
+      --coral: #c76752;
+      --lavender: #6f6fae;
+      --gold: #aa7a36;
+      --shadow: 0 24px 70px rgba(32, 31, 27, 0.12);
+      --radius: 8px;
+      --side: 320px;
+      --deck-width: 1720px;
+      --deck-height: 900px;
+      --deck-scale: 1;
+      --frame-gap: 16px;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      font-family: "LXGW WenKai Screen", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+    body {
+      display: grid;
+      place-items: center;
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      padding: var(--frame-gap);
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(34, 33, 29, 0.032) 1px, transparent 1px) 0 0 / 26px 26px,
+        linear-gradient(rgba(34, 33, 29, 0.026) 1px, transparent 1px) 0 0 / 26px 26px,
+        var(--paper);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+
+    .deck-shell {
+      width: calc(var(--deck-width) * var(--deck-scale));
+      height: calc(var(--deck-height) * var(--deck-scale));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .deck-frame {
+      position: relative;
+      container-type: inline-size;
+      width: var(--deck-width);
+      height: var(--deck-height);
+      overflow: hidden;
+      transform: scale(var(--deck-scale));
+      transform-origin: center center;
+      background:
+        linear-gradient(90deg, rgba(34, 33, 29, 0.032) 1px, transparent 1px) 0 0 / 26px 26px,
+        linear-gradient(rgba(34, 33, 29, 0.026) 1px, transparent 1px) 0 0 / 26px 26px,
+        var(--paper);
+      border: 1px solid rgba(34, 33, 29, 0.12);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .deck-frame::before {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      pointer-events: none;
+      border: 1px solid rgba(34, 33, 29, 0.08);
+      border-radius: 8px;
+    }
+
+    .deck {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: var(--side) minmax(0, 1fr);
+      width: 100%;
+      height: 100%;
+    }
+
+    .sidebar {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(14px, 1.75cqi, 24px);
+      min-height: 0;
+      height: 100%;
+      padding: clamp(18px, 2.25cqi, 30px) clamp(16px, 1.9cqi, 26px) clamp(16px, 1.8cqi, 24px);
+      color: var(--nav-ink);
+      background:
+        linear-gradient(rgba(34, 33, 29, 0.028) 1px, transparent 1px) 0 0 / 26px 26px,
+        var(--nav);
+      border-right: 1px solid var(--line);
+    }
+
+    .brand { display: grid; gap: 8px; }
+    .brand small,
+    .kicker,
+    .nav-no,
+    .counter {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+    .brand small { color: var(--nav-muted); font-size: 14px; text-transform: lowercase; }
+    .brand h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", "Songti SC", serif;
+      font-size: clamp(20px, 2.25cqi, 29px);
+      font-weight: 500;
+      line-height: 1.15;
+    }
+    .brand p { margin: 2px 0 0; color: var(--nav-muted); font-size: 14px; line-height: 1.7; }
+
+    .nav-list {
+      display: grid;
+      flex: 1 1 auto;
+      gap: 8px;
+      min-height: 0;
+      overflow: auto;
+      padding-right: 2px;
+      scrollbar-width: thin;
+    }
+
+    .nav-item {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 14px;
+      align-items: start;
+      width: 100%;
+      padding: 14px 12px 14px 10px;
+      color: var(--nav-muted);
+      background: transparent;
+      border: 0;
+      border-left: 2px solid transparent;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      text-align: left;
+      cursor: pointer;
+      transition: color 240ms var(--ease), background 240ms var(--ease), border-color 240ms var(--ease), transform 240ms var(--ease);
+    }
+    .nav-item:hover,
+    .nav-item:focus-visible {
+      color: var(--nav-ink);
+      background: rgba(255,255,255,0.48);
+      outline: none;
+    }
+    .nav-item.active {
+      color: var(--nav-ink);
+      background: rgba(255,255,255,0.72);
+      border-left-color: var(--coral);
+    }
+    .nav-no { opacity: 0.72; font-size: 14px; }
+    .nav-title { display: block; font-size: 17px; font-weight: 650; line-height: 1.35; }
+    .nav-subtitle { display: block; margin-top: 4px; color: var(--nav-muted); font-size: 13px; line-height: 1.45; }
+
+    .side-footer {
+      margin-top: auto;
+      display: grid;
+      gap: 10px;
+      color: var(--nav-muted);
+    }
+    .progress-track {
+      height: 3px;
+      overflow: hidden;
+      background: rgba(34,33,29,0.12);
+      border-radius: 999px;
+    }
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--coral), #e5b767);
+      transition: width 360ms var(--ease);
+    }
+    .counter { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+    .hint { font-size: 12px; line-height: 1.55; }
+
+    .stage {
+      position: relative;
+      min-width: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      align-content: center;
+      min-height: 0;
+      padding: clamp(36px, 4.5cqi, 72px);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(18px);
+      transition: opacity 420ms var(--ease), transform 420ms var(--ease);
+    }
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+    .slide-inner { position: relative; width: min(1080px, 100%); margin: 0 auto; }
+    .slide.wide .slide-inner { width: min(1180px, 100%); }
+
+    .kicker {
+      margin: 0 0 14px;
+      color: var(--coral);
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+    h2, h3, p { margin-top: 0; }
+    .title,
+    .slide-title {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", "Songti SC", serif;
+      font-weight: 500;
+      letter-spacing: 0;
+    }
+    .title { font-size: clamp(42px, 4.5cqi, 72px); line-height: 1.08; }
+    .slide-title { max-width: 880px; margin-bottom: 16px; font-size: clamp(34px, 3.625cqi, 58px); line-height: 1.12; }
+    .lead { max-width: 820px; margin: 0; color: var(--muted); font-size: clamp(18px, 1.5625cqi, 25px); line-height: 1.8; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 7px 11px;
+      color: var(--ink);
+      background: rgba(244, 239, 230, 0.9);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(0, 1.04fr) minmax(300px, 0.96fr);
+      gap: 28px;
+      align-items: stretch;
+      margin-top: 34px;
+    }
+    .three-col { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 32px; }
+
+    .panel,
+    .card,
+    .quote,
+    .note {
+      background: rgba(255, 255, 255, 0.64);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 34px rgba(34, 33, 29, 0.06);
+    }
+    .panel { padding: 26px; }
+    .card { min-height: 144px; padding: 22px; }
+    .card h3, .panel h3, .note h3 { margin: 0 0 10px; font-size: 21px; font-weight: 650; line-height: 1.35; }
+    .card p, .panel p, .note p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.75; }
+    .accent-green { border-top: 4px solid var(--green); }
+    .accent-blue { border-top: 4px solid var(--blue); }
+    .accent-coral { border-top: 4px solid var(--coral); }
+    .accent-lavender { border-top: 4px solid var(--lavender); }
+
+    .timeline { display: grid; gap: 14px; }
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 16px;
+      padding: 16px 18px;
+      background: rgba(255, 255, 255, 0.68);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+    .timeline-item strong { color: var(--coral); font-family: Georgia, "Times New Roman", serif; font-size: 26px; line-height: 1; }
+    .timeline-item p { margin: 0; color: var(--muted); line-height: 1.7; }
+
+    .material-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.68);
+      font-size: 15px;
+    }
+    .material-table th,
+    .material-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      line-height: 1.65;
+    }
+    .material-table th { color: var(--muted); font-weight: 650; background: rgba(244,239,230,0.64); }
+    .material-table tr:last-child td { border-bottom: 0; }
+    .material-table td:first-child { width: 36%; font-weight: 620; }
+
+    .quote {
+      position: relative;
+      overflow: hidden;
+      padding: 34px 40px 30px;
+      background:
+        linear-gradient(135deg, rgba(255,253,249,0.96), rgba(244,239,230,0.82)),
+        repeating-linear-gradient(0deg, rgba(34,33,29,0.035) 0, rgba(34,33,29,0.035) 1px, transparent 1px, transparent 31px);
+      border-left: 5px solid var(--gold);
+    }
+    .quote::before {
+      content: "“";
+      position: absolute;
+      top: -18px;
+      left: 18px;
+      color: rgba(199,103,82,0.14);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 118px;
+      pointer-events: none;
+    }
+    .quote p {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      font-family: Georgia, "Times New Roman", "Songti SC", serif;
+      font-size: clamp(24px, 2.45cqi, 39px);
+      line-height: 1.55;
+    }
+    .quote footer { margin-top: 18px; color: var(--gold); font-size: 16px; }
+
+    .controls {
+      position: absolute;
+      right: 28px;
+      bottom: 28px;
+      z-index: 8;
+      display: flex;
+      gap: 10px;
+    }
+    .control-btn {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      box-shadow: 0 8px 26px rgba(34, 33, 29, 0.08);
+      cursor: pointer;
+      transition: transform 180ms var(--ease), background 180ms var(--ease);
+    }
+    .control-btn:hover { transform: translateY(-1px); background: rgba(255,255,255,0.92); }
+
+    @media print {
+      body { display: block; overflow: visible; padding: 0; background: white; }
+      .deck-shell, .deck-frame, .deck { display: block; width: auto; height: auto; transform: none; box-shadow: none; border: 0; }
+      .sidebar, .controls { display: none; }
+      .stage { height: auto; overflow: visible; }
+      .slide { position: relative; inset: auto; display: block; min-height: 100vh; opacity: 1; transform: none; page-break-after: always; }
+    }
+  </style>
+</head>
+<body>
+  <div class="deck-shell" aria-label="网页版 slide 模板">
+    <main class="deck-frame">
+      <div class="deck">
+        <aside class="sidebar">
+          <div class="brand">
+            <small>your talk #1</small>
+            <h1><a href="#1">保持思考｜等待｜斋戒</a></h1>
+            <p>一个静态网页演示模板：适合技术分享、读书笔记、课程大纲。</p>
+          </div>
+
+          <nav class="nav-list" id="navList" aria-label="Slide navigation"></nav>
+
+          <div class="side-footer">
+            <div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div>
+            <div class="counter"><span id="currentNo">01</span><span id="totalNo">06</span></div>
+            <div class="hint">键盘：← / → 翻页，F 全屏，P 打印导出 PDF。</div>
+          </div>
+        </aside>
+
+        <section class="stage" id="stage" aria-live="polite">
+          <article class="slide active" data-title="Opening" data-subtitle="主题与背景">
+            <div class="slide-inner">
+              <p class="kicker">Opening</p>
+              <h2 class="title">分享我如何把一个想法做成网页版 Slide</h2>
+              <p class="lead" style="margin-top:26px;">不用 PowerPoint，也不用复杂构建工具。一个 HTML 文件就能做出演示页、侧边栏导航、翻页动画、进度条和移动端自适应。</p>
+              <div class="chips">
+                <span class="chip">Static HTML</span>
+                <span class="chip">CSS Grid</span>
+                <span class="chip">Keyboard Navigation</span>
+                <span class="chip">GitHub Pages</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="slide wide" data-title="Structure" data-subtitle="页面结构">
+            <div class="slide-inner">
+              <p class="kicker">Part 1 / Structure</p>
+              <h2 class="slide-title">它本质上是一个静态网页</h2>
+              <p class="lead">把每一页 slide 写成一个 HTML 区块，再用 CSS 控制布局，用 JS 切换当前页。</p>
+              <div class="three-col">
+                <div class="card accent-green"><h3>HTML</h3><p>负责内容结构：封面、目录、卡片、表格、引用页。</p></div>
+                <div class="card accent-blue"><h3>CSS</h3><p>负责视觉风格：纸张底纹、左侧导航、卡片阴影、排版比例。</p></div>
+                <div class="card accent-coral"><h3>JavaScript</h3><p>负责交互：键盘翻页、按钮翻页、Hash 路由、进度条。</p></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="slide wide" data-title="Workflow" data-subtitle="制作流程">
+            <div class="slide-inner">
+              <p class="kicker">Part 2 / Workflow</p>
+              <h2 class="slide-title">制作时可以按 4 步走</h2>
+              <div class="two-col">
+                <div class="panel">
+                  <div class="timeline">
+                    <div class="timeline-item"><strong>01</strong><p>先写大纲：每页只承载一个主要观点。</p></div>
+                    <div class="timeline-item"><strong>02</strong><p>再定版式：封面、三栏卡片、双栏说明、资料表格、金句引用。</p></div>
+                    <div class="timeline-item"><strong>03</strong><p>统一样式：颜色变量、字体、间距、边框和阴影。</p></div>
+                    <div class="timeline-item"><strong>04</strong><p>最后加交互：导航、进度条、键盘快捷键和打印样式。</p></div>
+                  </div>
+                </div>
+                <div class="note panel accent-lavender">
+                  <h3>核心原则</h3>
+                  <p>它不是传统 PPT，而是一个“固定画布尺寸 + 自适应缩放”的网页。这样录屏、演讲、部署和分享都比较方便。</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="slide wide" data-title="Components" data-subtitle="常用组件">
+            <div class="slide-inner">
+              <p class="kicker">Part 3 / Components</p>
+              <h2 class="slide-title">常用页面组件</h2>
+              <table class="material-table">
+                <thead><tr><th>组件</th><th>用途</th></tr></thead>
+                <tbody>
+                  <tr><td>Hero / Cover</td><td>封面页，用大标题、导语和标签快速交代主题。</td></tr>
+                  <tr><td>Card Grid</td><td>把 3 个并列观点拆开，适合目录页、分类页、对比页。</td></tr>
+                  <tr><td>Two Columns</td><td>左侧讲流程，右侧放备注、案例或小结。</td></tr>
+                  <tr><td>Material Table</td><td>展示学习资料、链接、任务清单或工具对照。</td></tr>
+                  <tr><td>Quote</td><td>收尾页或转场页，用来制造记忆点。</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="slide" data-title="Publish" data-subtitle="部署分享">
+            <div class="slide-inner">
+              <p class="kicker">Part 4 / Publish</p>
+              <h2 class="slide-title">部署到 GitHub Pages</h2>
+              <p class="lead">把这个文件命名为 <code>index.html</code>，放到仓库中的某个目录。GitHub Pages 选择对应分支/目录后，就可以用浏览器访问。</p>
+              <div class="chips">
+                <span class="chip">/slides/my-talk/index.html</span>
+                <span class="chip">GitHub Pages</span>
+                <span class="chip">No build step</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="slide" data-title="Closing" data-subtitle="一句话总结">
+            <div class="slide-inner">
+              <p class="kicker">Closing</p>
+              <div class="quote">
+                <p>网页版 Slide 的优势，是把“内容、排版、交互、发布”都收束在一个网页里。</p>
+                <footer>— 适合长期维护的技术分享模板</footer>
+              </div>
+            </div>
+          </article>
+
+          <div class="controls">
+            <button class="control-btn" id="prevBtn" type="button" aria-label="上一页">‹</button>
+            <button class="control-btn" id="nextBtn" type="button" aria-label="下一页">›</button>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const navList = document.getElementById('navList');
+    const progressBar = document.getElementById('progressBar');
+    const currentNo = document.getElementById('currentNo');
+    const totalNo = document.getElementById('totalNo');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const root = document.documentElement;
+    const deckWidth = 1720;
+    const deckHeight = 900;
+    let current = 0;
+
+    const pad = n => String(n).padStart(2, '0');
+
+    function buildNav() {
+      totalNo.textContent = pad(slides.length);
+      navList.innerHTML = slides.map((slide, i) => {
+        const title = slide.dataset.title || `Slide ${i + 1}`;
+        const subtitle = slide.dataset.subtitle || '';
+        return `
+          <button class="nav-item" type="button" data-index="${i}">
+            <span class="nav-no">${pad(i + 1)}</span>
+            <span><span class="nav-title">${title}</span><span class="nav-subtitle">${subtitle}</span></span>
+          </button>`;
+      }).join('');
+      navList.querySelectorAll('.nav-item').forEach(btn => {
+        btn.addEventListener('click', () => setSlide(Number(btn.dataset.index), true));
+      });
+    }
+
+    function setSlide(index, updateHash = false) {
+      current = Math.max(0, Math.min(index, slides.length - 1));
+      slides.forEach((slide, i) => slide.classList.toggle('active', i === current));
+      navList.querySelectorAll('.nav-item').forEach((btn, i) => btn.classList.toggle('active', i === current));
+      currentNo.textContent = pad(current + 1);
+      progressBar.style.width = `${((current + 1) / slides.length) * 100}%`;
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === slides.length - 1;
+      if (updateHash) history.replaceState(null, '', `#${current + 1}`);
+    }
+
+    function move(delta) { setSlide(current + delta, true); }
+
+    function fitDeck() {
+      const gap = 32;
+      const scale = Math.min((window.innerWidth - gap) / deckWidth, (window.innerHeight - gap) / deckHeight, 1);
+      root.style.setProperty('--deck-scale', Math.max(0.3, scale).toFixed(4));
+    }
+
+    function initFromHash() {
+      const n = Number(location.hash.replace('#', ''));
+      setSlide(Number.isFinite(n) && n > 0 ? n - 1 : 0, false);
+    }
+
+    prevBtn.addEventListener('click', () => move(-1));
+    nextBtn.addEventListener('click', () => move(1));
+    window.addEventListener('resize', fitDeck);
+    window.addEventListener('hashchange', initFromHash);
+    window.addEventListener('keydown', event => {
+      if (event.key === 'ArrowRight' || event.key === 'PageDown' || event.key === ' ') move(1);
+      if (event.key === 'ArrowLeft' || event.key === 'PageUp') move(-1);
+      if (event.key.toLowerCase() === 'p') window.print();
+      if (event.key.toLowerCase() === 'f') {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+        else document.exitFullscreen?.();
+      }
+    });
+
+    buildNav();
+    fitDeck();
+    initFromHash();
+  </script>
+</body>
+</html>
